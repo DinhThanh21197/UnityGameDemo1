@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-public class StoveCounter : BaseCounter
+public class StoveCounter : BaseCounter,IHasProgress
 {
     public event EventHandler<OnStateChangerEventAgrs> OnStateChange;
+    public event EventHandler<IHasProgress.OnProgcessChangeEventAgrs> OnProgressChange;
+
     public class OnStateChangerEventAgrs:EventArgs
     {
         public State state;
@@ -40,8 +42,12 @@ public class StoveCounter : BaseCounter
                 break;
             case State.Frying:
                 fryingTimer += Time.deltaTime;
-                if (fryingTimer > fryingRecipeSO.fryingTimeMax)
+                OnProgressChange?.Invoke(this, new IHasProgress.OnProgcessChangeEventAgrs
                 {
+                    progressNormalized = fryingTimer / fryingRecipeSO.fryingTimeMax
+                });
+                if (fryingTimer > fryingRecipeSO.fryingTimeMax)
+                {    
                     fryingTimer = 0f;
                     GetKitchenObject().DestroySelf();
                     KitchenObject.SpawnKitchenObject(fryingRecipeSO.output, this);
@@ -49,10 +55,15 @@ public class StoveCounter : BaseCounter
                     state = State.Fried;
                     buringTimer = 0f;
                     buringRecipeSO = GetBuringSOWithInput(GetKitchenObject().GetKitchenObjectSO());
+                   
                 }
                 break;
             case State.Fried:
                 buringTimer += Time.deltaTime;
+                OnProgressChange?.Invoke(this, new IHasProgress.OnProgcessChangeEventAgrs
+                {
+                    progressNormalized = buringTimer / buringRecipeSO.burningTimeMax
+                });
                 if (buringTimer >= buringRecipeSO.burningTimeMax)
                 {
                     buringTimer = 0f;
@@ -60,7 +71,8 @@ public class StoveCounter : BaseCounter
 
                     KitchenObject.SpawnKitchenObject(buringRecipeSO.output,this);
                     Debug.Log("Kitchen Object Burned !! ");
-                    state=State.Burned; 
+                    state=State.Burned;
+                  
                 }
                 break;
             case State.Burned:

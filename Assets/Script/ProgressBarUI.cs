@@ -11,6 +11,11 @@ public class ProgressBarUI : MonoBehaviour
     [SerializeField] private Image barImage;
     private void Start()
     {
+        hasProgess = hasProgressGameObject.GetComponent<IHasProgress>();
+        if(hasProgess == null)
+        {
+            Debug.LogError("Game Object " + hasProgressGameObject + " does not have a conpomnent that imlement Ihasprogress");
+        }
         this.hasProgess.OnProgressChange += HasProgress_OnProgressChange;
         barImage.fillAmount = 0f;
         Hide();
