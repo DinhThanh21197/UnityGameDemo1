@@ -14,7 +14,7 @@ public class StoveCounter : BaseCounter,IHasProgress
         public State state;
     }
 
-
+   
     [SerializeField] private FryingRecipeSO[] fryingRecipeSOArray;
     [SerializeField] private FryingRecipeSO fryingRecipeSO;
     [SerializeField] private BuringRecipeSO[] buringRecipeSOArray;
@@ -122,6 +122,22 @@ public class StoveCounter : BaseCounter,IHasProgress
             if (player.HasKitchenObject())
             {
                 //player is carrying something
+                if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+                {   
+
+                    // player holding plate
+                    if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        GetKitchenObject().DestroySelf();
+                        state = State.Idle;
+                        OnStateChange?.Invoke(this, new OnStateChangerEventAgrs
+                        {
+                            state = state
+                        });
+                        OnProgressChange?.Invoke(this, new IHasProgress.OnProgcessChangeEventAgrs { progressNormalized = 0f });
+                    }
+
+                }
             }
             else
             {
@@ -132,6 +148,7 @@ public class StoveCounter : BaseCounter,IHasProgress
                 {
                     state = state
                 });
+                OnProgressChange?.Invoke(this, new IHasProgress.OnProgcessChangeEventAgrs { progressNormalized = 0f });
             }
         }
     }

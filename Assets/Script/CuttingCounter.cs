@@ -28,7 +28,6 @@ public class CuttingCounter : BaseCounter,IHasProgress
                     CuttingRecipeSO cuttingRecipeSO = GetCuttingSOWithInput(GetKitchenObject().GetKitchenObjectSO());
                     OnProgressChange?.Invoke(this, new IHasProgress.OnProgcessChangeEventAgrs
                     {
-
                         progressNormalized=(float)cuttingProgress/ cuttingRecipeSO.cuttingProgressMax
                     });
                     cuttingProgress = 0;
@@ -46,6 +45,16 @@ public class CuttingCounter : BaseCounter,IHasProgress
             if (player.HasKitchenObject())
             {
                 //player is carrying something
+                if (player.GetKitchenObject().TryGetPlate(out PlateKitchenObject plateKitchenObject))
+                {
+
+                    // player holding plate
+                    if (plateKitchenObject.TryAddIngredient(GetKitchenObject().GetKitchenObjectSO()))
+                    {
+                        GetKitchenObject().DestroySelf();
+                    }
+
+                }
             }
             else
             {
