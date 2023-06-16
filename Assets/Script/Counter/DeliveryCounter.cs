@@ -12,7 +12,7 @@ public class DeliveryCounter : BaseCounter
             {
                 player.GetKitchenObject().DestroySelf();
             }
-            
         }
     }
+
 }
